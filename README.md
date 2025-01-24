@@ -2,22 +2,6 @@
 Repository for ansible playbooks and roles
 
 
-
-
-
-
-
-# Ops:
-
-```bash
-ansible-playbook -u administrator -i inventories/ubuntu-amd64/hosts.yml playbooks/ubuntu-amd64.docker.ansible.yml --extra-vars='{ "hosts_group":"ubuntu-amd64" }'
-```
-
-#
-
-- Add this to visudo (botom of ifile ) `administrator ALL=(ALL) NOPASSWD: ALL`
-
-
 ## Ubuntu:
 
 ### Prerequisites:
@@ -26,7 +10,7 @@ ansible-playbook -u administrator -i inventories/ubuntu-amd64/hosts.yml playbook
 2. An SSH Key.
 3. Authorize the key and copy the id.
 - You need to copy the ssh id. `ssh-copy-id user@server`
-4. The server must be cofigured to accept passwordless sudo: `your_user_name ALL=(ALL) NOPASSWD: ALL`
+4. The server must be cofigured to accept passwordless sudo: `your_user_name ALL=(ALL) NOPASSWD: ALL` visudo
 5. Make sure you are using Ubuntu as your target. Check it with `cat /etc/os-release`
 
 ### Repository structure: (might get outtdated really fast)
