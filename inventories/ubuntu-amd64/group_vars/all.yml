@@ -1,0 +1,6 @@
+docker_ce_version: "5:27.5.1-1~ubuntu.24.04~noble"
+docker_ce_cli_version: "5:27.5.1-1~ubuntu.24.04~noble"
+containerd_version: "1.7.25-1"
+docker_buildx_version: "0.20.0-1~ubuntu.24.04~noble"
+docker_compose_version: "2.32.4-1~ubuntu.24.04~noble"
+architecture: amd64
