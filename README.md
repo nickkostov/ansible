@@ -60,14 +60,12 @@ export ANSIBLE_CONFIG=ansible.ubuntu.cfg
 ```
 
 
-2. 
-
-3. 
+2. In order to run the ansible playbook you need to edit your inventory: `inventories/ubuntu-amd64/hosts.yml` with the correct host.
+3. Apply the configuration:
 
 ```bash
-
-ansible-playbook -u administrator \
--i inventories/ubuntu-amd64/hosts.yml \
+ansible-playbook -u administrator         \
+-i inventories/ubuntu-amd64/hosts.yml     \
 playbooks/ubuntu-amd64.docker.ansible.yml \
 --extra-vars='{ "hosts_group":"ubuntu-amd64-group" }'
 ```
