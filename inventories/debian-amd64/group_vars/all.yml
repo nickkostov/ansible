@@ -1,0 +1,6 @@
+docker_ce_version: "5:27.5.1-1~debian.12~bookworm"
+docker_ce_cli_version: "5:27.5.1-1~debian.12~bookworm"
+containerd_version: "1.7.25-1"
+docker_buildx_version: "0.20.0-1~debian.12~bookworm"
+docker_compose_version: "2.32.4-1~debian.12~bookworm"
+architecture: amd64

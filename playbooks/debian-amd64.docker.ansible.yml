@@ -1,0 +1,15 @@
+--- 
+- name: Configure debian-amd64
+  hosts: "{{ hosts_group }}"
+  become: true
+  become_method: sudo
+  become_user: root
+# Example Includes Role by default
+  roles:
+    - docker
+
+# Example Includes Role in Tasks
+  tasks:
+    - name: Install Docker 
+      include_role:
+        name: docker
