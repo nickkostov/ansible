@@ -1,0 +1,133 @@
+---
+
+- name: Check if dnf-plugins-core is installed
+  shell: rpm -q dnf-plugins-core
+  register: dnf_plugins_core_check
+  ignore_errors: yes
+
+- name: Ensure dnf-plugins-core is installed
+  dnf:
+    name: dnf-plugins-core
+    state: present
+  when: dnf_plugins_core_check.rc != 0
+
+- name: Check if Docker repo file exists
+  stat:
+    path: /etc/yum.repos.d/docker-ce.repo
+  register: docker_repo_file
+
+- name: Create Docker repo file if it doesn't exist
+  register: yum_repo_here
+  copy:
+    dest: /etc/yum.repos.d/docker-ce.repo
+    content: |
+      [docker-ce-stable]
+      name=Docker CE Stable - $basearch
+      baseurl=https://download.docker.com/linux/fedora/$releasever/$basearch/stable
+      enabled=1
+      gpgcheck=1
+      gpgkey=https://download.docker.com/linux/fedora/gpg
+
+      [docker-ce-stable-debuginfo]
+      name=Docker CE Stable - Debuginfo $basearch
+      baseurl=https://download.docker.com/linux/fedora/$releasever/debug-$basearch/stable
+      enabled=0
+      gpgcheck=1
+      gpgkey=https://download.docker.com/linux/fedora/gpg
+
+      [docker-ce-stable-source]
+      name=Docker CE Stable - Sources
+      baseurl=https://download.docker.com/linux/fedora/$releasever/source/stable
+      enabled=0
+      gpgcheck=1
+      gpgkey=https://download.docker.com/linux/fedora/gpg
+
+      [docker-ce-test]
+      name=Docker CE Test - $basearch
+      baseurl=https://download.docker.com/linux/fedora/$releasever/$basearch/test
+      enabled=0
+      gpgcheck=1
+      gpgkey=https://download.docker.com/linux/fedora/gpg
+
+      [docker-ce-test-debuginfo]
+      name=Docker CE Test - Debuginfo $basearch
+      baseurl=https://download.docker.com/linux/fedora/$releasever/debug-$basearch/test
+      enabled=0
+      gpgcheck=1
+      gpgkey=https://download.docker.com/linux/fedora/gpg
+
+      [docker-ce-test-source]
+      name=Docker CE Test - Sources
+      baseurl=https://download.docker.com/linux/fedora/$releasever/source/test
+      enabled=0
+      gpgcheck=1
+      gpgkey=https://download.docker.com/linux/fedora/gpg
+
+      [docker-ce-nightly]
+      name=Docker CE Nightly - $basearch
+      baseurl=https://download.docker.com/linux/fedora/$releasever/$basearch/nightly
+      enabled=0
+      gpgcheck=1
+      gpgkey=https://download.docker.com/linux/fedora/gpg
+
+      [docker-ce-nightly-debuginfo]
+      name=Docker CE Nightly - Debuginfo $basearch
+      baseurl=https://download.docker.com/linux/fedora/$releasever/debug-$basearch/nightly
+      enabled=0
+      gpgcheck=1
+      gpgkey=https://download.docker.com/linux/fedora/gpg
+
+      [docker-ce-nightly-source]
+      name=Docker CE Nightly - Sources
+      baseurl=https://download.docker.com/linux/fedora/$releasever/source/nightly
+      enabled=0
+      gpgcheck=1
+      gpgkey=https://download.docker.com/linux/fedora/gpg
+  when: not docker_repo_file.stat.exists
+
+- name: Upgrade all packages
+  ansible.builtin.dnf:
+    name: "*"
+    state: latest
+  when: yum_repo_here.changed and not yum_repo_here.failed
+
+- name: Install "container-selinux"
+  dnf:
+    name: container-selinux
+    state: latest
+  register: dnf_container_selinux_installed
+
+- name: Update DNF cache
+  dnf:
+    update_cache: yes
+
+- name: Ensure Docker packages are installed
+  dnf:
+    name:
+      - "docker-ce-{{ docker_ce_version }}"
+      - "docker-ce-cli-{{ docker_ce_cli_version }}"
+      - "containerd.io-{{ containerd_version }}"
+      - "docker-buildx-plugin-{{ docker_buildx_version }}"
+      - "docker-compose-plugin-{{ docker_compose_version }}"
+    state: present
+
+- name: Start Docker service
+  ansible.builtin.systemd:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Check Docker service status
+  ansible.builtin.command:
+    cmd: "systemctl status docker"
+  register: docker_status
+  changed_when: false
+
+- name: Display Docker service status
+  ansible.builtin.debug:
+    var: docker_status.stdout
+- name: Add the user to the Docker group
+  user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: yes
